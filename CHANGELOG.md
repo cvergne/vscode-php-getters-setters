@@ -3,6 +3,13 @@ All notable changes to the "php-getters-setters" extension will be documented in
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-01-08
+- Fix vscode compatibility (https://github.com/phproberto/vscode-php-getters-setters/pull/23)
+- Add support for 7.4 typed properties (https://github.com/phproberto/vscode-php-getters-setters/pull/31)
+- Add PSR-1 method names (https://github.com/phproberto/vscode-php-getters-setters/pull/33)
+- Handle specified array type hints (https://github.com/phproberto/vscode-php-getters-setters/pull/27)
+- Experimental: Handle from any cursor place in the line
+
 ## [1.2.0] - 2017-04-29
 - Added support for custom templates. See #3, #10, #11
 
