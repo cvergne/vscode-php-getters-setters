@@ -1,17 +1,20 @@
 {
-    "name": "vscode-php-getters-setters",
-    "displayName": "PHP Getters & Setters",
+    "name": "vscode-php-getters-setters-cv",
+    "displayName": "PHP Getters & Setters (CV fork)",
     "description": "Create PHP getters and setters from class properties",
-    "version": "1.2.3",
-    "publisher": "phproberto",
+    "version": "1.3.0",
+    "publisher": "cvergne",
     "author": "Roberto Segura <roberto@phproberto.com>",
+    "contributors": [
+        "Christophe VERGNE <dev@christophevergne.fr>"
+    ],
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/phproberto/vscode-php-getters-setters"
+        "url": "https://github.com/cvergne/vscode-php-getters-setters"
     },
     "bugs": {
-        "url": "https://github.com/phproberto/vscode-php-getters-setters/issues"
+        "url": "https://github.com/cvergne/vscode-php-getters-setters/issues"
     },
     "icon": "images/icon.png",
     "engines": {
@@ -60,7 +63,10 @@
                     "description": "How many spaces should we add after a @return tag?"
                 },
                 "phpGettersSetters.templatesDir": {
-                    "type": ["string", "null"],
+                    "type": [
+                        "string",
+                        "null"
+                    ],
                     "default": null,
                     "description": "Folder where custom templates are stored"
                 },
@@ -136,7 +142,7 @@
     },
     "devDependencies": {
         "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
+        "vscode": "^1.1.35",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
     }
