@@ -2,7 +2,15 @@
 
 > Fast generator of getters and setters for your PHP class properties.
 
+### Note
+
+_This repository is a fork of the original extension [phproberto/vscode-php-getters-setters](https://github.com/phproberto/vscode-php-getters-setters)_  
+_Unfortunately, its author doesn't seems to have time to maintain it anymore, so I made this fork to make the extension working again with the last version of VSCode and to merge the work from its amazing contributors._  
+
+_Feel free to submit issues or pull requests, and thanks @phproberto for its work !_  
+
 ![Demo](images/demo.gif)
+
 
 ## Features
 
