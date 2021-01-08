@@ -19,20 +19,31 @@ export default class Property {
     static fromEditorPosition(editor: vscode.TextEditor, activePosition: vscode.Position) {
         const wordRange = editor.document.getWordRangeAtPosition(activePosition);
 
-        if (wordRange === undefined) {
+        let selectedWord = undefined
+
+        if (wordRange !== undefined) {
+            // throw new Error('No property found. Please select a property to use this extension.');
+            selectedWord = editor.document.getText(wordRange);
+        } else if (selectedWord === undefined || selectedWord[0] !== '$') {
+            const matchWord = editor.document.lineAt(activePosition.line).text.match(/\$[a-zA-Z_]*/);
+
+            if (null === matchWord) {
+                throw new Error('No property found. Please select a property to use this extension.');
+            }
+            selectedWord = matchWord[0];
+        } else {
             throw new Error('No property found. Please select a property to use this extension.');
         }
-
-        const selectedWord = editor.document.getText(wordRange);
-
-        if (selectedWord[0] !== '$') {
-            throw new Error('No property found. Please select a property to use this extension.');
-        }
-
         let property = new Property(selectedWord.substring(1, selectedWord.length));
 
         const activeLineNumber = activePosition.line;
         const activeLine = editor.document.lineAt(activeLineNumber);
+        const activeLineTokens = activeLine.text.slice(0, -1).split(' ');
+        const typehint = activeLineTokens[activeLineTokens.indexOf(selectedWord) - 1];
+
+        if (typehint !== 'public' && typehint !== 'private' && typehint !== 'protected') {
+            property.setType(typehint);
+        }
 
         property.indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
 
@@ -105,7 +116,10 @@ export default class Property {
     }
 
     generateMethodName(prefix : string) : string {
-        return prefix + this.name.charAt(0).toUpperCase() + this.name.substring(1);
+        let name = this.name.split('_')
+            .map(str => str.charAt(0).toLocaleUpperCase() + str.slice(1))
+            .join('');
+        return prefix + name;
     }
 
     getDescription() : string {
@@ -150,6 +164,10 @@ export default class Property {
 
     setType(type : string) {
         this.type = type;
+
+        if (type.indexOf('[]') > 0) {
+            type = 'array';
+        }
 
         if (this.isValidTypeHint(type)) {
             this.typeHint = type;
