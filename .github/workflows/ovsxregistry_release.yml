@@ -1,0 +1,19 @@
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+name: OVSX Registry release
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm ci
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v0
+        with:
+          pat: ${{ secrets.OVSX_TOKEN }}
