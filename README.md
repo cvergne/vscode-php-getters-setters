@@ -93,7 +93,7 @@ module.exports = (property) => `
 `
 ```
 
-As you can see a [Property](blob/master/src/Property.ts) object is passed to templates so you can access any public method there. I also like the idea of adding more stuff as users find limits. Open an issue if you find something you cannot achieve.
+As you can see a [Property](src/Property.ts) object is passed to templates so you can access any public method there. I also like the idea of adding more stuff as users find limits. Open an issue if you find something you cannot achieve.
 
 ## Release Notes
 
