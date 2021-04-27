@@ -2,6 +2,7 @@
 All notable changes to the "php-getters-setters" extension will be documented in this file.
 
 ## [Unreleased]
+- Improve getterName for bool props
 
 ## [1.3.0] - 2021-01-08
 - Fix vscode compatibility (https://github.com/phproberto/vscode-php-getters-setters/pull/23)
