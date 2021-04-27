@@ -168,8 +168,13 @@ export default class Property {
         if (type.indexOf('[]') > 0) {
             type = 'array';
         }
+        
+        const opt = type.match(/\|null$/)
+        if (opt !== null) {
+            type = '?' + opt.input.substring(0, opt.index);
+        }
 
-        if (this.isValidTypeHint(type)) {
+        if (this.isValidTypeHint(type.replace(/^\?/, ''))) {
             this.typeHint = type;
         }
     }
