@@ -139,7 +139,7 @@ export default class Property {
     }
 
     getterName() : string {
-        return this.generateMethodName('get');
+        return this.generateMethodName(this.type === 'bool' ? 'is' : 'get');
     }
 
     getType() : string {
