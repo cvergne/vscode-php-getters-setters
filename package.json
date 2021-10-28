@@ -1,149 +1,149 @@
 {
-    "name": "vscode-php-getters-setters-cv",
-    "displayName": "PHP Getters & Setters (CV fork)",
-    "description": "Create PHP getters and setters from class properties",
-    "version": "1.3.0",
-    "publisher": "cvergne",
-    "author": "Roberto Segura <roberto@phproberto.com>",
-    "contributors": [
-        "Christophe VERGNE <dev@christophevergne.fr>"
-    ],
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/cvergne/vscode-php-getters-setters"
-    },
-    "bugs": {
-        "url": "https://github.com/cvergne/vscode-php-getters-setters/issues"
-    },
-    "icon": "images/icon.png",
-    "engines": {
-        "vscode": "^1.18.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "keywords": [
-        "php",
-        "getter",
-        "getters",
-        "setter",
-        "setters"
-    ],
-    "activationEvents": [
-        "onLanguage:php",
-        "onCommand:phpGettersSetters.insertGetter",
-        "onCommand:phpGettersSetters.insertSetter",
-        "onCommand:phpGettersSetters.insertGetterAndSetter"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "configuration": {
-            "type": "object",
-            "title": "PHP getters & setters configuration",
-            "properties": {
-                "phpGettersSetters.redirect": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Redirect to generated functions after creating them?"
-                },
-                "phpGettersSetters.spacesAfterParam": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "How many spaces should we add after a @param tag?"
-                },
-                "phpGettersSetters.spacesAfterParamVar": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "How many spaces should we add after a @param variable name?"
-                },
-                "phpGettersSetters.spacesAfterReturn": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "How many spaces should we add after a @return tag?"
-                },
-                "phpGettersSetters.templatesDir": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "default": null,
-                    "description": "Folder where custom templates are stored"
-                },
-                "phpGettersSetters.getterTemplate": {
-                    "type": "string",
-                    "default": "getter.js",
-                    "description": "File to use as template for getters"
-                },
-                "phpGettersSetters.setterTemplate": {
-                    "type": "string",
-                    "default": "setter.js",
-                    "description": "File to use as template for setters"
-                }
-            }
+  "name": "vscode-php-getters-setters-cv",
+  "displayName": "PHP Getters & Setters (CV fork)",
+  "description": "Create PHP getters and setters from class properties",
+  "version": "1.3.0",
+  "publisher": "cvergne",
+  "author": "Roberto Segura <roberto@phproberto.com>",
+  "contributors": [
+    "Christophe VERGNE <dev@christophevergne.fr>"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cvergne/vscode-php-getters-setters"
+  },
+  "bugs": {
+    "url": "https://github.com/cvergne/vscode-php-getters-setters/issues"
+  },
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.18.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "php",
+    "getter",
+    "getters",
+    "setter",
+    "setters"
+  ],
+  "activationEvents": [
+    "onLanguage:php",
+    "onCommand:phpGettersSetters.insertGetter",
+    "onCommand:phpGettersSetters.insertSetter",
+    "onCommand:phpGettersSetters.insertGetterAndSetter"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "PHP getters & setters configuration",
+      "properties": {
+        "phpGettersSetters.redirect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Redirect to generated functions after creating them?"
         },
-        "commands": [
-            {
-                "command": "phpGettersSetters.insertGetter",
-                "title": "Insert PHP Getter"
-            },
-            {
-                "command": "phpGettersSetters.insertSetter",
-                "title": "Insert PHP Setter"
-            },
-            {
-                "command": "phpGettersSetters.insertGetterAndSetter",
-                "title": "Insert PHP Getter & Setter"
-            }
-        ],
-        "menus": {
-            "commandPalette": [
-                {
-                    "command": "phpGettersSetters.insertGetter",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpGettersSetters.insertSetter",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpGettersSetters.insertGetterAndSetter",
-                    "when": "editorLangId == php"
-                }
-            ],
-            "editor/context": [
-                {
-                    "when": "resourceLangId == php",
-                    "command": "phpGettersSetters.insertGetter",
-                    "alt": "phpGettersSetters.insertGetter",
-                    "group": "0_phpGettersSetters@1"
-                },
-                {
-                    "when": "resourceLangId == php",
-                    "command": "phpGettersSetters.insertSetter",
-                    "alt": "phpGettersSetters.insertSetter",
-                    "group": "0_phpGettersSetters@2"
-                },
-                {
-                    "when": "resourceLangId == php",
-                    "command": "phpGettersSetters.insertGetterAndSetter",
-                    "alt": "phpGettersSetters.insertGetterAndSetter",
-                    "group": "0_phpGettersSetters@3"
-                }
-            ]
+        "phpGettersSetters.spacesAfterParam": {
+          "type": "integer",
+          "default": 2,
+          "description": "How many spaces should we add after a @param tag?"
+        },
+        "phpGettersSetters.spacesAfterParamVar": {
+          "type": "integer",
+          "default": 2,
+          "description": "How many spaces should we add after a @param variable name?"
+        },
+        "phpGettersSetters.spacesAfterReturn": {
+          "type": "integer",
+          "default": 2,
+          "description": "How many spaces should we add after a @return tag?"
+        },
+        "phpGettersSetters.templatesDir": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Folder where custom templates are stored"
+        },
+        "phpGettersSetters.getterTemplate": {
+          "type": "string",
+          "default": "getter.js",
+          "description": "File to use as template for getters"
+        },
+        "phpGettersSetters.setterTemplate": {
+          "type": "string",
+          "default": "setter.js",
+          "description": "File to use as template for setters"
         }
+      }
     },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.35",
-        "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+    "commands": [
+      {
+        "command": "phpGettersSetters.insertGetter",
+        "title": "Insert PHP Getter"
+      },
+      {
+        "command": "phpGettersSetters.insertSetter",
+        "title": "Insert PHP Setter"
+      },
+      {
+        "command": "phpGettersSetters.insertGetterAndSetter",
+        "title": "Insert PHP Getter & Setter"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "phpGettersSetters.insertGetter",
+          "when": "editorLangId == php"
+        },
+        {
+          "command": "phpGettersSetters.insertSetter",
+          "when": "editorLangId == php"
+        },
+        {
+          "command": "phpGettersSetters.insertGetterAndSetter",
+          "when": "editorLangId == php"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "resourceLangId == php",
+          "command": "phpGettersSetters.insertGetter",
+          "alt": "phpGettersSetters.insertGetter",
+          "group": "0_phpGettersSetters@1"
+        },
+        {
+          "when": "resourceLangId == php",
+          "command": "phpGettersSetters.insertSetter",
+          "alt": "phpGettersSetters.insertSetter",
+          "group": "0_phpGettersSetters@2"
+        },
+        {
+          "when": "resourceLangId == php",
+          "command": "phpGettersSetters.insertGetterAndSetter",
+          "alt": "phpGettersSetters.insertGetterAndSetter",
+          "group": "0_phpGettersSetters@3"
+        }
+      ]
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.37"
+  }
 }
