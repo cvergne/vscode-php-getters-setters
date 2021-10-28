@@ -115,19 +115,29 @@ class Resolver {
   insertAllGetterAndSetter() {
     console.log("command created and running");
     const editor = this.activeEditor();
+    let content = "";
 
-    const properties: Property[] = [];
     for (let i = 0; i < editor.document.lineCount; i++) {
       const line = editor.document.lineAt(i);
       console.log(line);
-      if (line.text !== "") {
-        const property = Property.fromLine(editor, line);
-        if (!property) continue;
+      // end loop asap
+      if (line.text == "") continue;
 
-        console.log(`>> property:`);
-        console.log(property);
+      let property;
+      try {
+        property = Property.fromLine(editor, line);
+      } catch (error) {
+        continue;
       }
+      if (!property) continue;
+
+      console.log(`>> property:`);
+      console.log(property);
+
+      content += this.getterTemplate(property) + this.setterTemplate(property);
     }
+
+    this.renderTemplate(content);
   }
 
   getterTemplate(prop: Property) {
