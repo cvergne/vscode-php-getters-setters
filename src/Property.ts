@@ -26,7 +26,7 @@ export default class Property {
     const text = line.text;
 
     if (
-      /^\s*(private|public|protected\b)\s\$[a-zA-Z_]*[a-zA-Z_0-9]*/.test(text)
+      /^\s*(private|public|protected\b)\s\$[a-zA-Z_]+[a-zA-Z_0-9]*/.test(text)
     ) {
       return true;
     }
