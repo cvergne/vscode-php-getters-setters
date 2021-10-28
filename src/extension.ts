@@ -316,6 +316,7 @@ function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(insertGetter);
   context.subscriptions.push(insertSetter);
   context.subscriptions.push(insertGetterAndSetter);
+  context.subscriptions.push(insertAllGetterAndSetter);
 }
 
 function deactivate() {}
