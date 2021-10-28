@@ -82,6 +82,14 @@
         }
       }
     },
+    "keybindings": [
+      {
+        "command": "phpGettersSetters.insertAllGetterAndSetter",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+opt+g",
+        "when": "editorTextFocus"
+      }
+    ],
     "commands": [
       {
         "command": "phpGettersSetters.insertGetter",
