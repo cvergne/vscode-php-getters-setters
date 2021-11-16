@@ -2,6 +2,8 @@
 All notable changes to the "php-getters-setters" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.3.1] - 2021-11-16
 - Improve getterName for bool props — #9
 
 ## [1.3.0] - 2021-01-08
