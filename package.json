@@ -2,7 +2,7 @@
   "name": "vscode-php-getters-setters-cv",
   "displayName": "PHP Getters & Setters (CV fork)",
   "description": "Create PHP getters and setters from class properties",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "publisher": "cvergne",
   "author": "Roberto Segura <roberto@phproberto.com>",
   "contributors": [
