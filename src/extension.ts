@@ -27,7 +27,6 @@ class Resolver {
         this.templatesManager = new TemplatesManager;
     }
 
-
     activeEditor() {
         return vscode.window.activeTextEditor;
     }
@@ -105,6 +104,35 @@ class Resolver {
             }
 
             content += this.setterTemplate(property);
+        }
+
+        this.renderTemplate(content);
+    }
+
+    /**
+     * Iterates all lines in the active document searching for properties,
+     * and create getters and setters for every property.
+     * Does NOT recognize different classes in a single document.
+     */
+    insertAllGetterAndSetter() {
+        const editor = this.activeEditor();
+        let content = '';
+
+        for (let i = 0; i < editor.document.lineCount; i++) {
+            const line = editor.document.lineAt(i);
+            // End loop asap
+            if (line.text == '') continue;
+
+            let property;
+            try {
+                property = Property.fromLine(editor, line);
+            } catch (error) {
+                continue;
+            }
+            if (!property) continue;
+
+            content +=
+                this.getterTemplate(property) + this.setterTemplate(property);
         }
 
         this.renderTemplate(content);
@@ -235,10 +263,12 @@ function activate(context: vscode.ExtensionContext) {
     let insertGetter = vscode.commands.registerCommand('phpGettersSetters.insertGetter', () => resolver.insertGetter());
     let insertSetter = vscode.commands.registerCommand('phpGettersSetters.insertSetter', () => resolver.insertSetter());
     let insertGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertGetterAndSetter', () => resolver.insertGetterAndSetter());
+    let insertAllGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertAllGetterAndSetter', () => resolver.insertAllGetterAndSetter());
 
     context.subscriptions.push(insertGetter);
     context.subscriptions.push(insertSetter);
     context.subscriptions.push(insertGetterAndSetter);
+    context.subscriptions.push(insertAllGetterAndSetter);
 }
 
 function deactivate() {

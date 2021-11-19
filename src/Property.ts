@@ -1,4 +1,3 @@
-
 'use strict';
 
 import * as vscode from 'vscode';
@@ -14,6 +13,46 @@ export default class Property {
     public constructor(name: string)
     {
         this.name = name;
+    }
+
+    /**
+     * Check if a property is defined in the provided line
+     * @param line Line of the editor.document to search for a property
+     * @returns Boolean. True if the line defines a property, false otherwise
+     */
+    static isAProperty(line: vscode.TextLine) {
+        const text = line.text;
+
+        if (
+            /^\s*(private|public|protected\b)\s\$[a-zA-Z_]+[a-zA-Z_0-9]*/.test(
+                text
+            )
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Search for and get the property in a line of the provided document if exists
+     * @param editor Vscode active text editor
+     * @param line Line of the editor.document to search for a property
+     * @returns Property object if found, null in other case
+     */
+    static fromLine(
+        editor: vscode.TextEditor,
+        line: vscode.TextLine
+    ): Property | null {
+        const position = new vscode.Position(
+            line.lineNumber,
+            line.range.end.character - 1 // Avoid semicolon
+        );
+
+        if (Property.isAProperty(line))
+            return Property.fromEditorPosition(editor, position);
+
+        return null;
     }
 
     static fromEditorPosition(editor: vscode.TextEditor, activePosition: vscode.Position) {
