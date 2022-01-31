@@ -19,6 +19,10 @@ class Resolver {
     {
         const editor = this.activeEditor();
 
+        if (!editor) {
+            throw new Error('Error while initializing extension');
+        }
+
         if (editor.document.languageId !== 'php') {
             throw new Error('Not a PHP file.');
         }
@@ -34,6 +38,10 @@ class Resolver {
     closingClassLine() {
         const editor = this.activeEditor();
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let lineNumber = editor.document.lineCount - 1; lineNumber > 0; lineNumber--) {
             const line = editor.document.lineAt(lineNumber);
             const text = line.text.trim();
@@ -43,7 +51,7 @@ class Resolver {
             }
         }
 
-        return null;
+        return {lineNumber: 1};
     }
 
     insertGetter() {
@@ -51,12 +59,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -72,12 +84,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -93,12 +109,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -118,6 +138,10 @@ class Resolver {
         const editor = this.activeEditor();
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let i = 0; i < editor.document.lineCount; i++) {
             const line = editor.document.lineAt(i);
             // End loop asap
@@ -126,7 +150,7 @@ class Resolver {
             let property;
             try {
                 property = Property.fromLine(editor, line);
-            } catch (error) {
+            } catch (error: any) {
                 continue;
             }
             if (!property) continue;
@@ -148,6 +172,7 @@ class Resolver {
         const templateFile = this.config.get('getterTemplate', 'getter.js');
 
         if (this.templatesManager.exists(templateFile)) {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const template = require(this.templatesManager.path(templateFile));
 
             return template(prop);
@@ -185,6 +210,7 @@ class Resolver {
         const templateFile = this.config.get('setterTemplate', 'setter.js');
 
         if (this.templatesManager.exists(templateFile)) {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const template = require(this.templatesManager.path(templateFile));
 
             return template(prop);
@@ -219,7 +245,7 @@ class Resolver {
             return;
         }
 
-        let insertLine = this.insertLine();
+        const insertLine = this.insertLine();
 
         if (!insertLine) {
             this.showErrorMessage('Unable to detect insert line for template.');
@@ -227,7 +253,13 @@ class Resolver {
         }
 
         const editor = this.activeEditor();
-        let resolver = this;
+
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const resolver = this;
 
         editor.edit(function(edit: vscode.TextEditorEdit){
             edit.replace(
@@ -263,15 +295,19 @@ class Resolver {
         return true === this.config.get('generatePHPDoc', true);
     }
 
-    getSetterTypeHint(type: string, nullable: boolean = false): string {
+    getSetterTypeHint(type: string, nullable = false): string {
         if (this.isPHP7TypeHintsEnabled()) {
-            return (nullable ? `?` : ``) + type + ` `
+            return (nullable ? `?` : ``) + type + ` `;
         }
 
         return '';
     }
 
-    getReturnTypeHint(type: string, nullable: boolean = false): string {
+    getReturnTypeHint(type: null|string, nullable = false): string {
+        if (null === type) {
+            type = '';
+        }
+
         if (this.isPHP7TypeHintsEnabled()) {
             return `: ` + (nullable ? `?` : ``) + type;
         }
@@ -279,7 +315,7 @@ class Resolver {
         return '';
     }
 
-    getPHPDocType(type: string, nullable: boolean = false): string {
+    getPHPDocType(type: string, nullable = false): string {
         if (nullable) {
             return `null|` + type;
         }
@@ -301,12 +337,12 @@ class Resolver {
 }
 
 function activate(context: vscode.ExtensionContext) {
-    let resolver = new Resolver;
+    const resolver = new Resolver;
 
-    let insertGetter = vscode.commands.registerCommand('phpGettersSetters.insertGetter', () => resolver.insertGetter());
-    let insertSetter = vscode.commands.registerCommand('phpGettersSetters.insertSetter', () => resolver.insertSetter());
-    let insertGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertGetterAndSetter', () => resolver.insertGetterAndSetter());
-    let insertAllGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertAllGetterAndSetter', () => resolver.insertAllGetterAndSetter());
+    const insertGetter = vscode.commands.registerCommand('phpGettersSetters.insertGetter', () => resolver.insertGetter());
+    const insertSetter = vscode.commands.registerCommand('phpGettersSetters.insertSetter', () => resolver.insertSetter());
+    const insertGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertGetterAndSetter', () => resolver.insertGetterAndSetter());
+    const insertAllGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertAllGetterAndSetter', () => resolver.insertAllGetterAndSetter());
 
     context.subscriptions.push(insertGetter);
     context.subscriptions.push(insertSetter);
@@ -314,6 +350,7 @@ function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(insertAllGetterAndSetter);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function deactivate() {
 }
 

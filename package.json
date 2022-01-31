@@ -2,7 +2,7 @@
   "name": "vscode-php-getters-setters-cv",
   "displayName": "PHP Getters & Setters (CV fork)",
   "description": "Create PHP getters and setters from class properties",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "publisher": "cvergne",
   "author": "Roberto Segura <roberto@phproberto.com>",
   "contributors": [
@@ -173,10 +173,18 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^7.0.43",
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^12.12.0",
     "@types/vscode": "^1.63.1",
+    "@typescript-eslint/eslint-plugin": "^4.16.0",
+    "@typescript-eslint/parser": "^4.16.0",
     "@vscode/test-electron": "^2.1.1",
-    "typescript": "^2.6.1"
-  }
+    "eslint": "^7.21.0",
+    "glob": "^7.1.4",
+    "mocha": "^6.1.4",
+    "source-map-support": "^0.5.12",
+    "typescript": "^4.2.2"
+  },
+  "dependencies": {}
 }

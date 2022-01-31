@@ -10,7 +10,7 @@ export default class Configuration {
         this.config = vscode.workspace.getConfiguration('phpGettersSetters');
     }
 
-    get(key: string, defaultValue) {
+    get(key: string, defaultValue: any) {
         return this.config.get(key, defaultValue);
     }
 

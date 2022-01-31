@@ -7,7 +7,12 @@ export default class Redirector {
 
     public constructor(editor?: vscode.TextEditor)
     {
-        this.editor = editor ? editor : vscode.window.activeTextEditor;
+        const activeEditor = editor ? editor : vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            throw new Error('No active editor');
+        }
+
+        this.editor = activeEditor;
     }
 
     goToLine(lineNumber : number) {

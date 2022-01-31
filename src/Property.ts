@@ -3,11 +3,11 @@
 import * as vscode from 'vscode';
 
 export default class Property {
-    private description: string = null;
-    private indentation: string;
+    private description: null|string = null;
+    private indentation: null|string = null;
     private name: string;
-    private type: string = null;
-    private typeHint: string = null;
+    private type: null|string = null;
+    private typeHint: null|string = null;
     private pseudoTypes = ['mixed', 'number', 'callback', 'array|object', 'void', 'null', 'integer'];
     private nullable: boolean = false;
 
@@ -53,6 +53,11 @@ export default class Property {
         const activeLineNumber = activePosition.line;
         const activeLine = editor.document.lineAt(activeLineNumber);
         const activeLineTokens = activeLine.text.match(/(private|public|protected) (\S*)?\s?\$(.*)\;\s?(\/\/\s?(.*))?/);
+
+        if (null === activeLineTokens) {
+            throw new Error('Invalid property line');
+        }
+
         const typehint = activeLineTokens[1];
 
         let property = new Property(activeLineTokens[3]);
@@ -144,11 +149,11 @@ export default class Property {
         return prefix + name;
     }
 
-    getDescription() : string {
+    getDescription() : null|string {
         return this.description;
     }
 
-    getIndentation() : string {
+    getIndentation() : null|string {
         return this.indentation;
     }
 
@@ -164,11 +169,11 @@ export default class Property {
         return this.generateMethodName(this.type === 'bool' ? 'is' : 'get');
     }
 
-    getType() : string {
+    getType() : null|string {
         return this.type;
     }
 
-    getTypeHint() : string {
+    getTypeHint() : null|string {
         return this.typeHint;
     }
 
