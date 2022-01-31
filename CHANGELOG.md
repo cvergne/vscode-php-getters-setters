@@ -2,6 +2,12 @@
 All notable changes to the "php-getters-setters" extension will be documented in this file.
 
 ## [Unreleased]
+- Add a new option to generate or not PHPDoc
+- Add a new option to enable PHP 7+ type hints
+- Handle nullable types in setter param and getter return (*require PHP 7+ type hints option to be enabled*)
+- Handle PHP 8 properties
+- Handle properties with comments
+- Bumped minimal VSCode version to 1.63 to handle pre-release
 
 ## [1.4.0] - 2021-11-19
 - Add command to insert all getters & setters + fixes - #13
