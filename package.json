@@ -62,6 +62,16 @@
           "default": 2,
           "description": "How many spaces should we add after a @return tag?"
         },
+        "phpGettersSetters.generatePHPDoc": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate PHPDoc in the generated functions?"
+        },
+        "phpGettersSetters.enablePHP7TypeHints": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the PHP 7+ type hints (nullable type in setter, return type in getter)?"
+        },
         "phpGettersSetters.templatesDir": {
           "type": [
             "string",

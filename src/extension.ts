@@ -143,6 +143,7 @@ class Resolver {
         const description = prop.getDescription();
         const tab = prop.getIndentation();
         const type = prop.getType();
+        const nullable = prop.isNullable();
         const spacesAfterReturn = Array(this.config.getInt('spacesAfterReturn', 2) + 1).join(' ');
         const templateFile = this.config.get('getterTemplate', 'getter.js');
 
@@ -152,14 +153,18 @@ class Resolver {
             return template(prop);
         }
 
-        return  (
-            `\n`
-            + tab + `/**\n`
-            + tab + ` * ` + prop.getterDescription() + `\n`
-            + (type ? tab + ` *\n` : ``)
-            + (type ? tab + ` * @return` + spacesAfterReturn + type + `\n` : ``)
-            + tab + ` */\n`
-            + tab + `public function ` + prop.getterName() + `()\n`
+        let preGetter = `\n`;
+
+        if (this.shouldGeneratePHPDoc()) {
+            preGetter += tab + `/**\n`
+                + tab + ` * ` + prop.getterDescription() + `\n`
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` *\n` : ``)
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` * @return` + spacesAfterReturn + this.getPHPDocType(type, nullable) + `\n` : ``)
+                + tab + ` */\n`;
+        }
+
+        return  (preGetter
+            + tab + `public function ` + prop.getterName() + `()` + this.getReturnTypeHint(type, nullable) + `\n`
             + tab + `{\n`
             + tab + tab + `return $this->` + name + `;\n`
             + tab + `}\n`
@@ -171,6 +176,7 @@ class Resolver {
         const description = prop.getDescription();
         const tab = prop.getIndentation();
         const type = prop.getType();
+        const nullable = prop.isNullable();
         const typeHint = prop.getTypeHint();
         const spacesAfterParam = Array(this.config.getInt('spacesAfterParam', 2) + 1).join(' ');
         const spacesAfterParamVar = Array(this.config.getInt('spacesAfterParamVar', 2) + 1).join(' ');
@@ -184,22 +190,27 @@ class Resolver {
             return template(prop);
         }
 
-        return (
-            `\n`
-            + tab + `/**\n`
+        let preSetter = `\n`;
+
+        if (this.shouldGeneratePHPDoc()) {
+            preSetter += tab + `/**\n`
             + tab + ` * ` + prop.setterDescription() + `\n`
-            + (type ? tab + ` *\n` : ``)
-            + (type ? tab + ` * @param` + spacesAfterParam + type + spacesAfterParamVar + `$` + name + (description ? `  ` + description : ``) + `\n` : ``)
-            + tab + ` *\n`
-            + tab + ` * @return` + spacesAfterReturn + `self\n`
-            + tab + ` */\n`
-            + tab + `public function ` + prop.setterName() + `(` + (typeHint ? typeHint + ` ` : ``) + `$` + name + `)\n`
+            + (!this.isPHP7TypeHintsEnabled() ?
+                (type ? tab + ` *\n` : ``)
+                + (type ? tab + ` * @param` + spacesAfterParam + this.getPHPDocType(type, nullable) + spacesAfterParamVar + `$` + name + (description ? `  ` + description : ``) + `\n` : ``)
+                + tab + ` *\n`
+                + tab + ` * @return` + spacesAfterReturn + `self\n`
+            : ``)
+            + tab + ` */\n`;
+        }
+
+        return (preSetter
+            + tab + `public function ` + prop.setterName() + `(` + (typeHint ? this.getSetterTypeHint(typeHint, nullable) + ` ` : ``) + `$` + name + `)` + this.getReturnTypeHint('self') + `\n`
             + tab+ `{\n`
             + tab + tab + `$this->` + name + ` = $` + name + `;\n`
             + `\n`
             + tab + tab + `return $this;\n`
-            + tab + `}\n`
-        );
+            + tab + `}\n`);
     }
 
     renderTemplate(template: string) {
@@ -242,6 +253,38 @@ class Resolver {
 
     isRedirectEnabled() : boolean {
         return true === this.config.get('redirect', true);
+    }
+
+    isPHP7TypeHintsEnabled(): boolean {
+        return true === this.config.get('enablePHP7TypeHints', true);
+    }
+
+    shouldGeneratePHPDoc(): boolean {
+        return true === this.config.get('generatePHPDoc', true);
+    }
+
+    getSetterTypeHint(type: string, nullable: boolean = false): string {
+        if (this.isPHP7TypeHintsEnabled()) {
+            return (nullable ? `?` : ``) + type + ` `
+        }
+
+        return '';
+    }
+
+    getReturnTypeHint(type: string, nullable: boolean = false): string {
+        if (this.isPHP7TypeHintsEnabled()) {
+            return `: ` + (nullable ? `?` : ``) + type;
+        }
+
+        return '';
+    }
+
+    getPHPDocType(type: string, nullable: boolean = false): string {
+        if (nullable) {
+            return `null|` + type;
+        }
+
+        return type;
     }
 
     showErrorMessage(message: string) {
