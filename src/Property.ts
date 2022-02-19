@@ -9,7 +9,7 @@ export default class Property {
     private type: null|string = null;
     private typeHint: null|string = null;
     private pseudoTypes = ['mixed', 'number', 'callback', 'array|object', 'void', 'null', 'integer'];
-    private nullable: boolean = false;
+    private nullable = false;
 
     public constructor(name: string)
     {
@@ -24,7 +24,7 @@ export default class Property {
     static isAProperty(line: vscode.TextLine) {
         const text = line.text;
 
-        return  /(private|public|protected) (\S*)?\s?\$(.*)\;\s?(\/\/\s?(.*))?/.test(text);
+        return  /(private|public|protected) (\S*)?\s?\$(.*)(;|,){1}\s?(\/\/\s?(.*))?/.test(text);
     }
 
     /**
@@ -52,7 +52,7 @@ export default class Property {
 
         const activeLineNumber = activePosition.line;
         const activeLine = editor.document.lineAt(activeLineNumber);
-        const activeLineTokens = activeLine.text.match(/(private|public|protected) (\S*)?\s?\$(.*)\;\s?(\/\/\s?(.*))?/);
+        const activeLineTokens = activeLine.text.match(/(private|public|protected) (\S*)?\s?\$(.*)(;|,){1}\s?(\/\/\s?(.*))?/);
 
         if (null === activeLineTokens) {
             throw new Error('Invalid property line');
@@ -60,7 +60,7 @@ export default class Property {
 
         const typehint = activeLineTokens[1];
 
-        let property = new Property(activeLineTokens[3]);
+        const property = new Property(activeLineTokens[3]);
 
         if (typehint !== 'public' && typehint !== 'private' && typehint !== 'protected') {
             property.setType(typehint);
@@ -111,7 +111,7 @@ export default class Property {
             if (-1 !== varPosition) {
                 property.setType(lineParts[varPosition + 1]);
 
-                var descriptionParts = lineParts.slice(varPosition + 2);
+                const descriptionParts = lineParts.slice(varPosition + 2);
 
                 if (descriptionParts.length) {
                     property.description = descriptionParts.join(` `);
@@ -143,7 +143,7 @@ export default class Property {
     }
 
     generateMethodName(prefix : string) : string {
-        let name = this.name.split('_')
+        const name = this.name.split('_')
             .map(str => str.charAt(0).toLocaleUpperCase() + str.slice(1))
             .join('');
         return prefix + name;
