@@ -18,13 +18,23 @@ export default class Property {
 
     /**
      * Check if a property is defined in the provided line
-     * @param line Line of the editor.document to search for a property
-     * @returns Boolean. True if the line defines a property, false otherwise
+     * @param {vscode.TextLine} line Line of the editor.document to search for a property
+     * @returns {RegExpMatchArray | null} RegExpMatchArray if the line defines a property, null otherwise
      */
-    static isAProperty(line: vscode.TextLine) {
+    static isAProperty(line: vscode.TextLine): RegExpMatchArray | null {
         const text = line.text;
 
-        return /(private|public|protected)\s+((\S*)\s+)?\$([a-zA-Z0-9_]+)/.test(text);
+        const matches = text.match(/(private|public|protected)\s+((\S*)\s+)?\$([a-zA-Z0-9_]+)/);
+
+        if (null === matches) {
+            return null;
+        }
+
+        if ('static' === matches[3]) {
+            return null;
+        }
+
+        return matches;
     }
 
     /**
@@ -52,7 +62,7 @@ export default class Property {
 
         const activeLineNumber = activePosition.line;
         const activeLine = editor.document.lineAt(activeLineNumber);
-        const activeLineTokens = activeLine.text.match(/(private|public|protected)\s+((\S*)\s+)?\$([a-zA-Z0-9_]+)/);
+        const activeLineTokens = Property.isAProperty(activeLine);
 
         if (null === activeLineTokens) {
             throw new Error('Invalid property line');

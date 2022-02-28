@@ -23,10 +23,10 @@ class TextLine implements vscode.TextLine {
 suite("Property", () => {
     test("isAProperty well detect properties", () => {
         const shouldPass = (textLine: string): void => {
-            assert.equal(
+            assert.notStrictEqual(
                 Property.isAProperty(new TextLine(textLine)),
-                true,
-                `Expected "${textLine}" to be a propery`
+                null,
+                `Expected "${textLine}" to be a property`
             );
         };
 
@@ -54,12 +54,15 @@ suite("Property", () => {
         const shallNotPass = (textLine: string): void => {
             assert.strictEqual(
                 Property.isAProperty(new TextLine(textLine)),
-                false,
-                `Expected "${textLine}" to NOT be a propery`
+                null,
+                `Expected "${textLine}" NOT to be a property`
             );
         };
 
         shallNotPass('class Hello');
         shallNotPass('private function hello()');
+        shallNotPass('public const FOO = \'BAR\'');
+        shallNotPass('public static $foo = \'bar\'');
+        shallNotPass('public static string $foo = \'bar\'');
     });
 });
