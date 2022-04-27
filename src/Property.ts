@@ -3,12 +3,13 @@
 import * as vscode from 'vscode';
 
 export default class Property {
-    private description: string = null;
-    private indentation: string;
+    private description: null|string = null;
+    private indentation: null|string = null;
     private name: string;
-    private type: string = null;
-    private typeHint: string = null;
+    private type: null|string = null;
+    private typeHint: null|string = null;
     private pseudoTypes = ['mixed', 'number', 'callback', 'array|object', 'void', 'null', 'integer'];
+    private nullable = false;
 
     public constructor(name: string)
     {
@@ -17,21 +18,23 @@ export default class Property {
 
     /**
      * Check if a property is defined in the provided line
-     * @param line Line of the editor.document to search for a property
-     * @returns Boolean. True if the line defines a property, false otherwise
+     * @param {vscode.TextLine} line Line of the editor.document to search for a property
+     * @returns {RegExpMatchArray | null} RegExpMatchArray if the line defines a property, null otherwise
      */
-    static isAProperty(line: vscode.TextLine) {
+    static isAProperty(line: vscode.TextLine): RegExpMatchArray | null {
         const text = line.text;
 
-        if (
-            /^\s*(private|public|protected\b)\s\$[a-zA-Z_]+[a-zA-Z_0-9]*/.test(
-                text
-            )
-        ) {
-            return true;
+        const matches = text.match(/(private|public|protected)\s+((\S*)\s+)?\$([a-zA-Z0-9_]+)/);
+
+        if (null === matches) {
+            return null;
         }
 
-        return false;
+        if ('static' === matches[3]) {
+            return null;
+        }
+
+        return matches;
     }
 
     /**
@@ -56,35 +59,30 @@ export default class Property {
     }
 
     static fromEditorPosition(editor: vscode.TextEditor, activePosition: vscode.Position) {
-        const wordRange = editor.document.getWordRangeAtPosition(activePosition);
-
-        let selectedWord = undefined
-
-        if (wordRange !== undefined) {
-            // throw new Error('No property found. Please select a property to use this extension.');
-            selectedWord = editor.document.getText(wordRange);
-        } else if (selectedWord === undefined || selectedWord[0] !== '$') {
-            const matchWord = editor.document.lineAt(activePosition.line).text.match(/\$[a-zA-Z_]*/);
-
-            if (null === matchWord) {
-                throw new Error('No property found. Please select a property to use this extension.');
-            }
-            selectedWord = matchWord[0];
-        } else {
-            throw new Error('No property found. Please select a property to use this extension.');
-        }
-        let property = new Property(selectedWord.substring(1, selectedWord.length));
 
         const activeLineNumber = activePosition.line;
         const activeLine = editor.document.lineAt(activeLineNumber);
-        const activeLineTokens = activeLine.text.slice(0, -1).split(' ');
-        const typehint = activeLineTokens[activeLineTokens.indexOf(selectedWord) - 1];
+        const activeLineTokens = Property.isAProperty(activeLine);
+
+        if (null === activeLineTokens) {
+            throw new Error('Invalid property line');
+        }
+
+        const typehint = activeLineTokens[1];
+
+        const property = new Property(activeLineTokens[4]);
 
         if (typehint !== 'public' && typehint !== 'private' && typehint !== 'protected') {
             property.setType(typehint);
         }
 
         property.indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
+
+        if (activeLineTokens[3]) {
+            property.setType(activeLineTokens[3]);
+
+            return property;
+        }
 
         const previousLineNumber = activeLineNumber - 1;
 
@@ -123,7 +121,7 @@ export default class Property {
             if (-1 !== varPosition) {
                 property.setType(lineParts[varPosition + 1]);
 
-                var descriptionParts = lineParts.slice(varPosition + 2);
+                const descriptionParts = lineParts.slice(varPosition + 2);
 
                 if (descriptionParts.length) {
                     property.description = descriptionParts.join(` `);
@@ -155,17 +153,17 @@ export default class Property {
     }
 
     generateMethodName(prefix : string) : string {
-        let name = this.name.split('_')
+        const name = this.name.split('_')
             .map(str => str.charAt(0).toLocaleUpperCase() + str.slice(1))
             .join('');
         return prefix + name;
     }
 
-    getDescription() : string {
+    getDescription() : null|string {
         return this.description;
     }
 
-    getIndentation() : string {
+    getIndentation() : null|string {
         return this.indentation;
     }
 
@@ -181,16 +179,20 @@ export default class Property {
         return this.generateMethodName(this.type === 'bool' ? 'is' : 'get');
     }
 
-    getType() : string {
+    getType() : null|string {
         return this.type;
     }
 
-    getTypeHint() : string {
+    getTypeHint() : null|string {
         return this.typeHint;
     }
 
     isValidTypeHint(type : string) {
         return (-1 === type.indexOf('|') && -1 === this.pseudoTypes.indexOf(type));
+    }
+
+    isNullable() : boolean {
+        return this.nullable;
     }
 
     setterDescription() : string {
@@ -204,12 +206,20 @@ export default class Property {
     setType(type : string) {
         this.type = type;
 
-        if (type.indexOf('[]') > 0) {
-            type = 'array';
+        if (/^\?/.test(type)) {
+            this.nullable = true;
+            this.type = type.replace(/\?/, '');
+        } else if (/\|?null\|?/.test(type)) {
+            this.nullable = true;
+            this.type = type.replace(/\|?null\|?/, '');
         }
 
-        if (this.isValidTypeHint(type)) {
-            this.typeHint = type;
+        if (this.type.indexOf('[]') > 0) {
+            this.type = 'array';
+        }
+
+        if (this.isValidTypeHint(this.type)) {
+            this.typeHint = this.type;
         }
     }
 }

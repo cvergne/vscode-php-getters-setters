@@ -10,20 +10,20 @@ export default class TemplatesManager {
     config: Configuration;
 
     constructor() {
-        this.config = new Configuration;;
+        this.config = new Configuration;
         this.initTemplatesDir();
     }
 
-    public exists(fileName): boolean {
+    public exists(fileName: string): boolean {
         return fs.existsSync(path.join(this.templatesDir(), fileName));
     }
 
-    public path(fileName) : string {
+    public path(fileName: string) : string {
         return path.join(this.templatesDir(), fileName);
     }
 
     public templatesDir(): string {
-        let settingsDir = this.config.get('templatesDir', null);
+        const settingsDir = this.config.get('templatesDir', null);
 
         if (settingsDir && fs.existsSync(settingsDir)) {
             return settingsDir;
@@ -33,7 +33,7 @@ export default class TemplatesManager {
     }
 
     private defaultTemplatesDir(): string {
-        let userDataDir = null;
+        let userDataDir = '';
 
         switch (process.platform) {
             case 'linux':
@@ -43,7 +43,7 @@ export default class TemplatesManager {
                 userDataDir = path.join(os.homedir(), 'Library', 'Application Support');
                 break;
             case 'win32':
-                userDataDir = process.env.APPDATA;
+                userDataDir = process.env.APPDATA ?? '';
                 break;
             default:
                 throw Error("Unrecognizable operative system");
@@ -53,7 +53,7 @@ export default class TemplatesManager {
     }
 
     private initTemplatesDir() {
-        let templatesDir = this.templatesDir();
+        const templatesDir = this.templatesDir();
 
         fs.mkdir(templatesDir, '0755', function (err) {
             if (err && err.code != 'EEXIST') {

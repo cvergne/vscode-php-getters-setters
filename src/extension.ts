@@ -19,6 +19,10 @@ class Resolver {
     {
         const editor = this.activeEditor();
 
+        if (!editor) {
+            throw new Error('Error while initializing extension');
+        }
+
         if (editor.document.languageId !== 'php') {
             throw new Error('Not a PHP file.');
         }
@@ -34,6 +38,10 @@ class Resolver {
     closingClassLine() {
         const editor = this.activeEditor();
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let lineNumber = editor.document.lineCount - 1; lineNumber > 0; lineNumber--) {
             const line = editor.document.lineAt(lineNumber);
             const text = line.text.trim();
@@ -43,7 +51,7 @@ class Resolver {
             }
         }
 
-        return null;
+        return {lineNumber: 1};
     }
 
     insertGetter() {
@@ -51,12 +59,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -72,12 +84,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -93,12 +109,16 @@ class Resolver {
         let property = null;
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
         for (let index = 0; index < editor.selections.length; index++) {
             const selection = editor.selections[index];
 
             try {
                 property = Property.fromEditorPosition(editor, selection.active);
-            } catch (error) {
+            } catch (error: any) {
                 this.showErrorMessage(error.message);
                 return null;
             }
@@ -118,6 +138,12 @@ class Resolver {
         const editor = this.activeEditor();
         let content = '';
 
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
+        let hasProperties = false;
+
         for (let i = 0; i < editor.document.lineCount; i++) {
             const line = editor.document.lineAt(i);
             // End loop asap
@@ -126,13 +152,20 @@ class Resolver {
             let property;
             try {
                 property = Property.fromLine(editor, line);
-            } catch (error) {
+            } catch (error: any) {
                 continue;
             }
             if (!property) continue;
 
             content +=
                 this.getterTemplate(property) + this.setterTemplate(property);
+
+            hasProperties = true;
+        }
+
+        if (!hasProperties) {
+            this.showErrorMessage('No properties found in this file.');
+            return;
         }
 
         this.renderTemplate(content);
@@ -143,23 +176,29 @@ class Resolver {
         const description = prop.getDescription();
         const tab = prop.getIndentation();
         const type = prop.getType();
+        const nullable = prop.isNullable();
         const spacesAfterReturn = Array(this.config.getInt('spacesAfterReturn', 2) + 1).join(' ');
         const templateFile = this.config.get('getterTemplate', 'getter.js');
 
         if (this.templatesManager.exists(templateFile)) {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const template = require(this.templatesManager.path(templateFile));
 
             return template(prop);
         }
 
-        return  (
-            `\n`
-            + tab + `/**\n`
-            + tab + ` * ` + prop.getterDescription() + `\n`
-            + (type ? tab + ` *\n` : ``)
-            + (type ? tab + ` * @return` + spacesAfterReturn + type + `\n` : ``)
-            + tab + ` */\n`
-            + tab + `public function ` + prop.getterName() + `()\n`
+        let preGetter = `\n`;
+
+        if (this.shouldGeneratePHPDoc()) {
+            preGetter += tab + `/**\n`
+                + tab + ` * ` + prop.getterDescription() + `\n`
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` *\n` : ``)
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` * @return` + spacesAfterReturn + this.getPHPDocType(type, nullable) + `\n` : ``)
+                + tab + ` */\n`;
+        }
+
+        return  (preGetter
+            + tab + `public function ` + prop.getterName() + `()` + this.getReturnTypeHint(type, nullable) + `\n`
             + tab + `{\n`
             + tab + tab + `return $this->` + name + `;\n`
             + tab + `}\n`
@@ -171,6 +210,7 @@ class Resolver {
         const description = prop.getDescription();
         const tab = prop.getIndentation();
         const type = prop.getType();
+        const nullable = prop.isNullable();
         const typeHint = prop.getTypeHint();
         const spacesAfterParam = Array(this.config.getInt('spacesAfterParam', 2) + 1).join(' ');
         const spacesAfterParamVar = Array(this.config.getInt('spacesAfterParamVar', 2) + 1).join(' ');
@@ -179,27 +219,33 @@ class Resolver {
         const templateFile = this.config.get('setterTemplate', 'setter.js');
 
         if (this.templatesManager.exists(templateFile)) {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const template = require(this.templatesManager.path(templateFile));
 
             return template(prop);
         }
 
-        return (
-            `\n`
-            + tab + `/**\n`
+        let preSetter = `\n`;
+
+        if (this.shouldGeneratePHPDoc()) {
+            preSetter += tab + `/**\n`
             + tab + ` * ` + prop.setterDescription() + `\n`
-            + (type ? tab + ` *\n` : ``)
-            + (type ? tab + ` * @param` + spacesAfterParam + type + spacesAfterParamVar + `$` + name + (description ? `  ` + description : ``) + `\n` : ``)
-            + tab + ` *\n`
-            + tab + ` * @return` + spacesAfterReturn + `self\n`
-            + tab + ` */\n`
-            + tab + `public function ` + prop.setterName() + `(` + (typeHint ? typeHint + ` ` : ``) + `$` + name + `)\n`
+            + (!this.isPHP7TypeHintsEnabled() ?
+                (type ? tab + ` *\n` : ``)
+                + (type ? tab + ` * @param` + spacesAfterParam + this.getPHPDocType(type, nullable) + spacesAfterParamVar + `$` + name + (description ? `  ` + description : ``) + `\n` : ``)
+                + tab + ` *\n`
+                + tab + ` * @return` + spacesAfterReturn + `self\n`
+            : ``)
+            + tab + ` */\n`;
+        }
+
+        return (preSetter
+            + tab + `public function ` + prop.setterName() + `(` + (typeHint ? this.getSetterTypeHint(typeHint, nullable) + ` ` : ``) + `$` + name + `)` + this.getReturnTypeHint('self') + `\n`
             + tab+ `{\n`
             + tab + tab + `$this->` + name + ` = $` + name + `;\n`
             + `\n`
             + tab + tab + `return $this;\n`
-            + tab + `}\n`
-        );
+            + tab + `}\n`);
     }
 
     renderTemplate(template: string) {
@@ -208,7 +254,7 @@ class Resolver {
             return;
         }
 
-        let insertLine = this.insertLine();
+        const insertLine = this.insertLine();
 
         if (!insertLine) {
             this.showErrorMessage('Unable to detect insert line for template.');
@@ -216,7 +262,13 @@ class Resolver {
         }
 
         const editor = this.activeEditor();
-        let resolver = this;
+
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const resolver = this;
 
         editor.edit(function(edit: vscode.TextEditorEdit){
             edit.replace(
@@ -244,6 +296,42 @@ class Resolver {
         return true === this.config.get('redirect', true);
     }
 
+    isPHP7TypeHintsEnabled(): boolean {
+        return true === this.config.get('enablePHP7TypeHints', true);
+    }
+
+    shouldGeneratePHPDoc(): boolean {
+        return true === this.config.get('generatePHPDoc', true);
+    }
+
+    getSetterTypeHint(type: string, nullable = false): string {
+        if (this.isPHP7TypeHintsEnabled()) {
+            return (nullable ? `?` : ``) + type + ` `;
+        }
+
+        return '';
+    }
+
+    getReturnTypeHint(type: null|string, nullable = false): string {
+        if (null === type) {
+            type = '';
+        }
+
+        if (this.isPHP7TypeHintsEnabled()) {
+            return `: ` + (nullable ? `?` : ``) + type;
+        }
+
+        return '';
+    }
+
+    getPHPDocType(type: string, nullable = false): string {
+        if (nullable) {
+            return `null|` + type;
+        }
+
+        return type;
+    }
+
     showErrorMessage(message: string) {
         message = 'phpGettersSetters error: ' + message.replace(/\$\(.+?\)\s\s/, '');
 
@@ -258,12 +346,12 @@ class Resolver {
 }
 
 function activate(context: vscode.ExtensionContext) {
-    let resolver = new Resolver;
+    const resolver = new Resolver;
 
-    let insertGetter = vscode.commands.registerCommand('phpGettersSetters.insertGetter', () => resolver.insertGetter());
-    let insertSetter = vscode.commands.registerCommand('phpGettersSetters.insertSetter', () => resolver.insertSetter());
-    let insertGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertGetterAndSetter', () => resolver.insertGetterAndSetter());
-    let insertAllGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertAllGetterAndSetter', () => resolver.insertAllGetterAndSetter());
+    const insertGetter = vscode.commands.registerCommand('phpGettersSetters.insertGetter', () => resolver.insertGetter());
+    const insertSetter = vscode.commands.registerCommand('phpGettersSetters.insertSetter', () => resolver.insertSetter());
+    const insertGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertGetterAndSetter', () => resolver.insertGetterAndSetter());
+    const insertAllGetterAndSetter = vscode.commands.registerCommand('phpGettersSetters.insertAllGetterAndSetter', () => resolver.insertAllGetterAndSetter());
 
     context.subscriptions.push(insertGetter);
     context.subscriptions.push(insertSetter);
@@ -271,6 +359,7 @@ function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(insertAllGetterAndSetter);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function deactivate() {
 }
 

@@ -3,6 +3,17 @@ All notable changes to the "php-getters-setters" extension will be documented in
 
 ## [Unreleased]
 
+## [1.6.0] - 2022-04-27
+- Add a new option to generate or not PHPDoc
+- Add a new option to enable PHP 7+ type hints
+- Handle nullable types in setter param and getter return (*require PHP 7+ type hints option to be enabled*)
+- Handle PHP 8 properties
+- Handle properties with comments
+- Bumped minimal VSCode version to 1.63 to handle pre-release
+- Fix: default values, like private string $foo5 = "ok";, generating invalid getter/setter: (by @alcalyn)
+- Fix: static properties, like public static $foo = 'bar';, generating invalid getter/setter: (by @alcalyn)
+- For better understanding, error Missing template has been replaced by No properties found in the file when no properties found in the file (by @alcalyn)
+
 ## [1.4.0] - 2021-11-19
 - Add command to insert all getters & setters + fixes - #13
 
