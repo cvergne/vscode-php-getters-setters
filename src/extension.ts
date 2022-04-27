@@ -142,6 +142,8 @@ class Resolver {
             throw new Error('Error editor not available');
         }
 
+        let hasProperties = false;
+
         for (let i = 0; i < editor.document.lineCount; i++) {
             const line = editor.document.lineAt(i);
             // End loop asap
@@ -157,6 +159,13 @@ class Resolver {
 
             content +=
                 this.getterTemplate(property) + this.setterTemplate(property);
+
+            hasProperties = true;
+        }
+
+        if (!hasProperties) {
+            this.showErrorMessage('No properties found in this file.');
+            return;
         }
 
         this.renderTemplate(content);
