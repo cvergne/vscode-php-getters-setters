@@ -306,7 +306,7 @@ class Resolver {
 
     getSetterTypeHint(type: string, nullable = false): string {
         if (this.isPHP7TypeHintsEnabled()) {
-            return (nullable ? `?` : ``) + type + ` `;
+            return (nullable ? `?` : ``) + type;
         }
 
         return '';
@@ -314,14 +314,14 @@ class Resolver {
 
     getReturnTypeHint(type: null|string, nullable = false): string {
         if (null === type) {
-            type = '';
+            return '';
         }
 
         if (this.isPHP7TypeHintsEnabled()) {
             return `: ` + (nullable ? `?` : ``) + type;
         }
 
-        return '';
+         return '';
     }
 
     getPHPDocType(type: string, nullable = false): string {
