@@ -321,7 +321,7 @@ class Resolver {
             return `: ` + (nullable ? `?` : ``) + type;
         }
 
-         return '';
+        return '';
     }
 
     getPHPDocType(type: string, nullable = false): string {
