@@ -3,6 +3,9 @@ All notable changes to the "php-getters-setters" extension will be documented in
 
 ## [Unreleased]
 
+## [1.6.1] - 2022-04-29
+- Fix a wrong colon inserted in getter function just after (), which breaks php code. by @AlexJBSilva in https://github.com/cvergne/vscode-php-getters-setters/pull/27
+
 ## [1.6.0] - 2022-04-27
 - Add a new option to generate or not PHPDoc
 - Add a new option to enable PHP 7+ type hints
