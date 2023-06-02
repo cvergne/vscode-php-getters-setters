@@ -159,6 +159,10 @@ export default class Property {
         return prefix + name;
     }
 
+    generateMethodSnakeName(prefix: string) : string {
+        return prefix + '_' + this.name;
+    }
+
     getDescription() : null|string {
         return this.description;
     }
@@ -177,6 +181,10 @@ export default class Property {
 
     getterName() : string {
         return this.generateMethodName(this.type === 'bool' ? 'is' : 'get');
+    }
+
+    getterSnakeName() : string {
+        return this.generateMethodSnakeName(this.type === 'bool' ? 'is' : 'get');
     }
 
     getType() : null|string {
@@ -201,6 +209,10 @@ export default class Property {
 
     setterName() : string {
         return this.generateMethodName('set');
+    }
+
+    setterSnakeName() : string {
+        return this.generateMethodSnakeName('set');
     }
 
     setType(type : string) {

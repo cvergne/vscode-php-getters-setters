@@ -3,6 +3,14 @@ All notable changes to the "php-getters-setters" extension will be documented in
 
 ## [Unreleased]
 
+## [1.6.2] - 2023-06-02
+- Add phpcsCompliant in extension's settings 
+- Add checkPropertiesNames() function: if the new options is checked, this functions will throw an error if properties names are not in snake case
+- Add code to optionally create getters and setter following phpcs conventions: snake case, opening braces inline with method declaration and so on
+- Modified the code to optionally create comments following phpcs conventions (to imporve)
+- added "noImplicitAny": false rule in tsconfig.json to avoid error "implicitly has an 'any' type" on success and error parameter (extension.ts, lines 352 and 358)
+- removed the null value assignmnet to the variables 'property' (lines 107, 132, 157 e 200 of the original code of extension.ts file) because this throwed the following error: "Type 'Property' is not assignable to type 'null'."
+
 ## [1.6.1] - 2022-04-29
 - Fix a wrong colon inserted in getter function just after (), which breaks php code. by @AlexJBSilva in https://github.com/cvergne/vscode-php-getters-setters/pull/27
 

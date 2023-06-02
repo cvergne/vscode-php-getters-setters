@@ -4,8 +4,13 @@
 
 ### Note
 
-_This repository is a fork of the original extension [phproberto/vscode-php-getters-setters](https://github.com/phproberto/vscode-php-getters-setters)_  
-_Unfortunately, its author doesn't seems to have time to maintain it anymore, so I made this fork to make the extension working again with the last version of VSCode and to merge the work from its amazing contributors._  
+_This repository is a fork of the Christopher Vergne extension [ cvergne/vscode-php-getters-setters](https://github.com/cvergne/vscode-php-getters-setters) which is a fork of the original extension [phproberto/vscode-php-getters-setters](https://github.com/phproberto/vscode-php-getters-setters)_  
+
+_I'm new to VS Code extensions development. I'm developing a WordPress plugin but when it come the moment to use php-getter-setter extension I realized it didn't work: I had the original verzion by phproberto. So I browsed the extension repo and I g¡have found the CV fork. This one worked but it didn't use phpcs conventions which we use developing WordPress plugins and themes. So I wanted to fix this and I thought it could be useful for other WordPress developers._
+
+_At first, I just wanted to create a pull request and merge my change with the main brnch but once I have cloned the repo using Github Desktop I see it gave me several errors: .vscode was not found, exports method was not recognized and so on. I tried to install missing dependencies but I have not been able to solve those errors. So I just created a new extension using `yo code` command and then pasted the code from the forked repo. I’m sorry but this is the best I could do in the little time I had available_
+
+_I leave here the rest of the readme file as it is. See CHANGELOG.md to learn more about new changes_
 
 _Feel free to submit issues or pull requests, and thanks @phproberto for its work !_  
 
@@ -41,6 +46,7 @@ This extension contributes the following settings:
 * `phpGettersSetters.spacesAfterParamVar`: Number of spaces to insert after the variable name in the @param tag line. Default: 2
 * `phpGettersSetters.spacesAfterReturn`: Number of spaces to insert after the @return tag. Default: 2
 * `phpGettersSetters.redirect`: Redirect editor to generated functions after generating them? Default: true
+* `phpGettersSetters.phpcsCompliant`: Use phpcs conventions (snake case names, opening braces in the same line of methods declarations, etc)? Default: false
 * `phpGettersSetters.templatesDir`: Folder where custom templates are stored
 * `phpGettersSetters.getterTemplate`: File to use as template for getters. Default: getter.js
 * `phpGettersSetters.setterTemplate`: File to use as template for setters. Default :setter.js

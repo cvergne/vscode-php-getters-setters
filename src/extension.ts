@@ -29,6 +29,10 @@ class Resolver {
 
         this.config = new Configuration;
         this.templatesManager = new TemplatesManager;
+
+        if (this.isPhpcsCompliantEnabled()) {
+            this.checkPropertiesFormat();
+        }
     }
 
     activeEditor() {
@@ -54,9 +58,53 @@ class Resolver {
         return {lineNumber: 1};
     }
 
+    checkPropertiesFormat() {
+
+        const editor = this.activeEditor();
+        let content = '';
+
+        if (!editor) {
+            throw new Error('Error editor not available');
+        }
+
+        let hasProperties = false;
+
+        for (let i = 0; i < editor.document.lineCount; i++) {
+            const line = editor.document.lineAt(i);
+            // End loop asap
+            if (line.text == '')
+                continue;
+            let property;
+            try {
+                property = Property.fromLine(editor, line);
+                try {
+                    property = Property.fromLine(editor, line);
+                } catch (error: any) {
+                    continue;
+                }
+                if (!property) continue;
+                let propertyname = property.getName();
+                if (propertyname.indexOf('_') <= 0 || /[A-Z]/.test(propertyname) === true) {
+                    this.showErrorMessage('One or more properties does not comply with phpcs conventions. Please, use snake case and lowercase letters in your properties names or disable phpcsCompliant in extension settings');
+                    return;
+                }
+            }
+            catch (error) {
+                continue;
+            }
+            if (!property)
+                continue;
+            hasProperties = true;
+        }
+        if (!hasProperties) {
+            this.showErrorMessage('No properties found in this file.');
+            return;
+        }
+    }
+
     insertGetter() {
         const editor = this.activeEditor();
-        let property = null;
+        let property;
         let content = '';
 
         if (!editor) {
@@ -81,7 +129,7 @@ class Resolver {
 
     insertGetterAndSetter(){
         const editor = this.activeEditor();
-        let property = null;
+        let property;
         let content = '';
 
         if (!editor) {
@@ -106,7 +154,7 @@ class Resolver {
 
     insertSetter() {
         const editor = this.activeEditor();
-        let property = null;
+        let property;
         let content = '';
 
         if (!editor) {
@@ -197,6 +245,19 @@ class Resolver {
                 + tab + ` */\n`;
         }
 
+        if (this.isPhpcsCompliantEnabled()) {
+            preGetter = `\n`;
+            preGetter += tab + `/**\n`
+                + tab + ` * ` + prop.getterDescription() + `\n`
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` *\n` : ``)
+                + (type && !this.isPHP7TypeHintsEnabled() ? tab + ` * @return` + spacesAfterReturn + this.getPHPDocType(type, nullable) + `\n` : ``)
+                + tab + ` */\n`;            
+            return (preGetter
+                + tab + `public function ` + prop.getterSnakeName() + `()` + ` {\n`
+                + tab + tab + `return $this->` + name + `;\n`
+                + tab + `}\n`);
+        }
+
         return  (preGetter
             + tab + `public function ` + prop.getterName() + `()` + this.getReturnTypeHint(type, nullable) + `\n`
             + tab + `{\n`
@@ -237,6 +298,23 @@ class Resolver {
                 + tab + ` * @return` + spacesAfterReturn + `self\n`
             : ``)
             + tab + ` */\n`;
+        }
+
+        if (this.isPhpcsCompliantEnabled()) {
+            preSetter = `\n`;
+            preSetter += tab + `/**\n`
+                + tab + ` * ` + prop.setterDescription() + `\n`
+                + (type ? tab + ` *\n` : ``)
+                + (type ? tab + ` * @param` + spacesAfterParam + this.getPHPDocType(type, nullable) + spacesAfterParamVar + `$` + name + (description ? ` ` + description : ``) + `\n` : ``)
+                + tab + ` *\n`
+                + tab + ` * @return` + spacesAfterReturn + `self\n`
+                + tab + ` */\n`;
+            return (preSetter
+                + tab + `public function ` + prop.setterSnakeName() + `( ` + (typeHint ? this.getSetterTypeHint(typeHint, nullable) + ` ` : ``) + `$` + name + ` )` + ` {\n`
+                + tab + tab + `$this->` + name + ` = $` + name + `;\n`
+                + `\n`
+                + tab + tab + `return $this;\n`
+                + tab + `}\n`);
         }
 
         return (preSetter
@@ -298,6 +376,10 @@ class Resolver {
 
     isPHP7TypeHintsEnabled(): boolean {
         return true === this.config.get('enablePHP7TypeHints', true);
+    }
+
+    isPhpcsCompliantEnabled() {
+        return true === this.config.get('phpcsCompliant', false);
     }
 
     shouldGeneratePHPDoc(): boolean {
